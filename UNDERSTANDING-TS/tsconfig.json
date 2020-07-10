@@ -54,9 +54,11 @@
         // javascriptをcompile時にuse strictを使用する
         // "alwaysStrict": true,                  /* Parse in strict mode and emit "use strict" for each source file. */
         /* Additional Checks */
-        // "noUnusedLocals": true,                /* Report errors on unused locals. */
-        // "noUnusedParameters": true,            /* Report errors on unused parameters. */
-        // "noImplicitReturns": true,             /* Report error when not all code paths in function return a value. */
+        // 下記の3つはcodeの品質に関わるもの、未使用のlocal変数、parameterがあるときにerror, またある関数が値を返す時と返さないときがあるときerrorとなる
+        "noUnusedLocals": true, /* Report errors on unused locals. */
+        "noUnusedParameters": true, /* Report errors on unused parameters. */
+        "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
+        // switch文でfallthroughを許可しない、fallthroughとはswitch case文でbreakを使用しないで次のcaseに行くこと
         // "noFallthroughCasesInSwitch": true,    /* Report errors for fallthrough cases in switch statement. */
         /* Module Resolution Options */
         // "moduleResolution": "node",            /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
@@ -79,6 +81,7 @@
         // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
         /* Advanced Options */
         "skipLibCheck": true, /* Skip type checking of declaration files. */
+        // file名の大文字、小文字を区別する、Windowsだとファイルのパスは大文字小文字を区別しないので、linux系とwindows系の差異をなくすのに有効
         "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
     },
     // excludeを指定しない時はnode_modulesはdefaultで除外されている、excludeを明示した時はnode_modulesも指定する必要あり

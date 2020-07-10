@@ -1,6 +1,19 @@
+// この未使用の変数はnoUnusedLocals: trueでもerrorとならない。この変数はglobalなのでtypescriptには他で使われているかどうか判断できないのでerrorとならない
+let appId = 'abc';
 const button = document.querySelector('button')!;
 
+// noImplicitReturns: tureで、関数内で分岐があるときreturnし忘れがある場合errorが出る
+function add(n1: number, n2: number) {
+  if (n1 + n2 > 0) {
+    return n1 + n2;
+  }
+  // 下記のreturnがないとnoImplicitReturnsでerror
+  return
+}
+
 function clickHandler(message: string) {
+  // この未使用のlocal変数は、noUnusedLocals: trueでerror
+  // let userName = 'Max';
   console.log('Clicked! ' + message);
 }
 
