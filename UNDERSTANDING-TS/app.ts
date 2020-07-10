@@ -1,8 +1,12 @@
+// type aliasの使用で、型の再利用、型名を説明的に、また型の定義を一箇所に集中して管理することができる
+type Combinable = number | string;
+type ConversionDescriptor = 'as-number' | 'as-text';
+
 function combine(
-  input1: number | string,
-  input2: number | string,
+  input1: Combinable,
+  input2: Combinable,
   // literal型かつunion型
-  resultConversion: 'as-number' | "as-text"
+  resultConversion: ConversionDescriptor,
 ) {
   let result;
   if (typeof input1 === 'number' && typeof input2 === 'number' || resultConversion === 'as-number') {
