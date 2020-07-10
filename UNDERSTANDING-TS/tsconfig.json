@@ -37,6 +37,8 @@
         // targetが古いversionの時、for文が思った通りに作動しないときがあるのでそのような時に使用
         // "downlevelIteration": true,            /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
         // "isolatedModules": true,               /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
+        // error時にjavascriptをcompileしない
+        "noEmitOnError": true,
         /* Strict Type-Checking Options */
         "strict": true, /* Enable all strict type-checking options. */
         // "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
