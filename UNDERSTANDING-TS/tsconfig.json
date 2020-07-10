@@ -12,9 +12,12 @@
             "DOM.Iterable",
             "ScriptHost",
         ], /* Specify library files to be included in the compilation. */
+        // javascript fileもcompileの対象にする、2重にcompileされるのでexcludeで調整する必要あり
         // "allowJs": true,                       /* Allow javascript files to be compiled. */
+        // javascript fileもerror checkする
         // "checkJs": true,                       /* Report errors in .js files. */
         // "jsx": "preserve",                     /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
+        // 型定義fileの作成
         // "declaration": true,                   /* Generates corresponding '.d.ts' file. */
         // "declarationMap": true,                /* Generates a sourcemap for each corresponding '.d.ts' file. */
         // "sourceMap": true,                     /* Generates corresponding '.map' file. */
