@@ -9,3 +9,11 @@ userInput = 'Max';
 if (typeof userInput === 'string') {
     userName = userInput;
 }
+// neverは何も返さない、voidと違いundefinedを返すことすらない。途中でscriptがcrash、もしくは無限ループする
+function generateError(message, code) {
+    throw { message: message, errorCode: code };
+    // while (true) { }
+}
+var result = generateError('エラーが発生しました', 500);
+// 上で処理が終わるので下のconsole.logは実行されない
+console.log(result);
