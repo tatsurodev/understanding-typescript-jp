@@ -23,13 +23,18 @@
         // compileしたjavascript fileからdebugするのは非効率だが、typescripとjavascriptのmappingを行うsourceMapの利用で、直接typescript fileからのdebugが可能になる
         // "sourceMap": true, /* Generates corresponding '.map' file. */
         // "outFile": "./",                       /* Concatenate and emit output to single file. */
-        // "outDir": "./",                        /* Redirect output structure to the directory. */
-        // "rootDir": "./",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
+        // compileされたjavascript fileがoutputされる場所。typescriptのあるrootDirのfile構造(folder等も)をそのままoutputする
+        "outDir": "./dist", /* Redirect output structure to the directory. */
+        // typescript fileを配置している場所。rootDir外にtypescript fileがあるとerrorが出る
+        "rootDir": "./src", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
         // "composite": true,                     /* Enable project compilation */
         // "tsBuildInfoFile": "./",               /* Specify file to store incremental compilation information */
-        // "removeComments": true,                /* Do not emit comments to output. */
+        // comment削除
+        "removeComments": true, /* Do not emit comments to output. */
+        // javascript fileをcompileしない、error checkのみ。他のbuild toolを使う時等に使用
         // "noEmit": true,                        /* Do not emit outputs. */
         // "importHelpers": true,                 /* Import emit helpers from 'tslib'. */
+        // targetが古いversionの時、for文が思った通りに作動しないときがあるのでそのような時に使用
         // "downlevelIteration": true,            /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
         // "isolatedModules": true,               /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
         /* Strict Type-Checking Options */
