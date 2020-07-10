@@ -12,4 +12,10 @@ function printResult(num) {
 //   console.log('Result: ' + num);
 //   return;
 // }
+// functionを代入する変数にfunction型を与え、代入できる関数を制限する
+var combineValues;
+combineValues = add;
+// combineValues = 5;
+// combineValues = printResult;
+console.log(combineValues(8, 8));
 printResult(add(5, 12));
