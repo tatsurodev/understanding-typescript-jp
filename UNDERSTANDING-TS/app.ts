@@ -9,6 +9,17 @@ function printResult(num: number): void {
 }
 // console.log(printResult(add(5, 12)));
 
+function addAndHandle(n1: number, n2: number, cb: (num: number) => void) {
+  const result = n1 + n2;
+  cb(result);
+}
+
+addAndHandle(10, 20, (result) => {
+  console.log(result);
+  // 返り値にvoidが指定されている時でもreturnしてもerrorは発生しない
+  return result;
+})
+
 // 返り値にundefinedを指定すると、returnが必須。通常、関数の返り値にundefinedは避けるべき
 // function printResult(num: number): undefined {
 //   console.log('Result: ' + num);
