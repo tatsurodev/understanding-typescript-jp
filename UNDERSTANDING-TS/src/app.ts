@@ -1,13 +1,16 @@
 class Department {
-  name: string;
+  // private id: string;
+  // name: string;
   private employees: string[] = [];
 
-  constructor(n: string) {
-    this.name = n;
+  // constructorの引数内でpublicを使用する場合は省略不可
+  constructor(private id: string, public name: string) {
+    // this.id = id;
+    // this.name = n;
   }
   // thisの型を括弧内で与えることができる
   describe(this: Department) {
-    console.log('Department: ' + this.name);
+    console.log(`Department (${this.id}): ${this.name}`);
   }
   addEmployee(employee: string) {
     // validation系の処理も追加できるので、下記のaccounting.employees[2]='Anna';のように直接外部からaccessして変更できるような仕様は良くない。employeesをprivateにしてこのmethodを通じてのみ変更できるようにする
@@ -19,7 +22,7 @@ class Department {
   }
 }
 
-const accounting = new Department('Accounting');
+const accounting = new Department('d1', 'Accounting');
 accounting.addEmployee('Max');
 accounting.addEmployee('Manu');
 
