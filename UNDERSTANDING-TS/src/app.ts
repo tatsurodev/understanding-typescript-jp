@@ -1,10 +1,10 @@
 class Department {
-  // private id: string;
+  // private readonly id: string;
   // name: string;
   private employees: string[] = [];
 
   // constructorの引数内でpublicを使用する場合は省略不可
-  constructor(private id: string, public name: string) {
+  constructor(private readonly id: string, public name: string) {
     // this.id = id;
     // this.name = n;
   }
@@ -14,6 +14,7 @@ class Department {
   }
   addEmployee(employee: string) {
     // validation系の処理も追加できるので、下記のaccounting.employees[2]='Anna';のように直接外部からaccessして変更できるような仕様は良くない。employeesをprivateにしてこのmethodを通じてのみ変更できるようにする
+    // this.id = 'd2';
     this.employees.push(employee);
   }
   printEmployeeInformation() {
