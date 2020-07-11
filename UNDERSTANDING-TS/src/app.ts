@@ -1,7 +1,9 @@
+/*
 const userName = 'Max';
 // userName = 'Maximilian';
 let age = 30;
 age = 29;
+*/
 
 // var ,let共に関数外からはaccess不可
 /*
@@ -65,7 +67,7 @@ const activeHobbies = ['Hiking', ...hobbies];
 activeHobbies.push(...hobbies);
 // objectでの使用
 const person = {
-  name: 'Max',
+  firstName: 'Max',
   age: 30,
 }
 // 参照ではなく実際のcopyを作成したい時
@@ -84,3 +86,12 @@ const add = (...numbers: number[]) => {
 
 const addedNumbers = add(5, 10, 2, 3.7);
 console.log(addedNumbers);
+
+// destructuring, 分割代入
+const [hobby1, hobby2, ...remainingHobbies] = hobbies;
+console.log(hobbies, hobby1, hobby2)
+
+// nameはdom librayの予約語なのでkeyにnameを使用するのは避けたほうがbetter
+// 代入先の変数名を変更できる、:以下はtypescriptの型ではなくjavascriptの分割代入のsyntax
+const { firstName: userName, age } = person;
+console.log(userName, age, person);
