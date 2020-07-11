@@ -55,3 +55,20 @@ if (age >= 20) {
 // error
 console.log(isAdult);
 */
+
+// spread operator
+// 配列での使用
+const hobbies = ['Sports', 'Cooking'];
+const activeHobbies = ['Hiking', ...hobbies];
+// 配列は参照型なので、配列が定数でも要素を追加できる
+// activeHobbies.push(hobbies[0], hobbies[1]);
+activeHobbies.push(...hobbies);
+// objectでの使用
+const person = {
+  name: 'Max',
+  age: 30,
+}
+// 参照ではなく実際のcopyを作成したい時
+const copiedPerson = {
+  ...person,
+};
