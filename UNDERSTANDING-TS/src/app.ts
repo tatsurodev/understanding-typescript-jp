@@ -1,26 +1,97 @@
-// この未使用の変数はnoUnusedLocals: trueでもerrorとならない。この変数はglobalなのでtypescriptには他で使われているかどうか判断できないのでerrorとならない
-let appId = 'abc';
-const button = document.querySelector('button')!;
+/*
+const userName = 'Max';
+// userName = 'Maximilian';
+let age = 30;
+age = 29;
+*/
 
-// noImplicitReturns: tureで、関数内で分岐があるときreturnし忘れがある場合errorが出る
-function add(n1: number, n2: number) {
-  if (n1 + n2 > 0) {
-    return n1 + n2;
-  }
-  // 下記のreturnがないとnoImplicitReturnsでerror
-  return
+// var ,let共に関数外からはaccess不可
+/*
+function add(a: number, b: number) {
+  // var result;
+  let result;
+  result = a + b;
+  return result;
 }
+// error
+// console.log(result);
+*/
 
-function clickHandler(message: string) {
-  // この未使用のlocal変数は、noUnusedLocals: trueでerror
-  // let userName = 'Max';
-  console.log('Clicked! ' + message);
+// arrow function
+/*
+const add = (a: number, b: number) => {
+  return a + b;
 }
+const add = (a: number, b: number = 1) => a + b;
 
-// a comment
-// const buttonで、non - null assertion operatorを使用しない時は、ifでbuttonのnull checkを行うことでerror回避できる
+// allow functionの引数が1つの時、丸括弧は省略できるが引数の型を指定できなくなるので、関数を格納する変数に関数型を指定する
+const printOutput: (output: string | number) => void = output => {
+  console.log(output);
+}
+printOutput(add(2));
+*/
+
+const button = document.querySelector('button');
 if (button) {
-  // callbackのclickHandlerに引数を持たせるにはbindを使う,第一引数がthisに当たるもの、第二以降の引数がcallbackの引数
-  // callとapplyは関数を今すぐcallする、bindは関数の写像が返ってくるので後でcallできる。callとapplyの違いは第二引数がapplyは配列、callの第二引数以降は関数の引数
-  button.addEventListener('click', clickHandler.bind(null, "You're welcome!"));
+  button.addEventListener('click', event => {
+    console.log(event);
+  });
 }
+
+// var vs let
+// varはglobal scope or 関数scope
+/*
+if (age >= 20) {
+  // isAdultはglobal変数になる
+  var isAdult = true;
+}
+console.log(isAdult);
+*/
+
+// letはblock scope({}内のみ、もしくは{}内の下層の{}からのみaccess可能)
+/*
+if (age >= 20) {
+  // isAdultはblock内のみaccess可
+  let isAdult = true;
+}
+// error
+console.log(isAdult);
+*/
+
+// spread operator
+// 配列での使用
+const hobbies = ['Sports', 'Cooking'];
+const activeHobbies = ['Hiking', ...hobbies];
+// 配列は参照型なので、配列が定数でも要素を追加できる
+// activeHobbies.push(hobbies[0], hobbies[1]);
+activeHobbies.push(...hobbies);
+// objectでの使用
+const person = {
+  firstName: 'Max',
+  age: 30,
+}
+// 参照ではなく実際のcopyを作成したい時
+const copiedPerson = {
+  ...person,
+};
+
+// rest parameter
+const add = (...numbers: number[]) => {
+  return numbers.reduce((curResult, curValue) => {
+    return curResult + curValue;
+  }, 0);
+};
+// rest parameterをtupleにして引数の長さを制限
+// const add = (...numbers: [number, number, number]) => { }
+
+const addedNumbers = add(5, 10, 2, 3.7);
+console.log(addedNumbers);
+
+// destructuring, 分割代入
+const [hobby1, hobby2, ...remainingHobbies] = hobbies;
+console.log(hobbies, hobby1, hobby2)
+
+// nameはdom librayの予約語なのでkeyにnameを使用するのは避けたほうがbetter
+// 代入先の変数名を変更できる、:以下はtypescriptの型ではなくjavascriptの分割代入のsyntax
+const { firstName: userName, age } = person;
+console.log(userName, age, person);
