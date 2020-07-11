@@ -1,12 +1,22 @@
 class Department {
+  static fiscalYear = 2020;
   // private readonly id: string;
   // name: string;
   protected employees: string[] = [];
+
+  static createEmployee(name: string) {
+    // static methodからなのでstatic memberにaccessおｋ
+    console.log('createEmployee', this.fiscalYear);
+    return { name: name };
+  }
 
   // constructorの引数内でpublicを使用する場合は省略不可
   constructor(private readonly id: string, public name: string) {
     // this.id = id;
     // this.name = n;
+    // staticでない場所、つまりstaticでないmethodやpropertyからstatic memberにはaccessできない。thisはclassではなくinstanceを指し示すものなのでerrorとなる
+    // console.log(this.fiscalYear);
+    console.log(Department.fiscalYear);
   }
   // thisの型を括弧内で与えることができる
   describe(this: Department) {
@@ -64,6 +74,9 @@ class AccountingDepartment extends Department {
     this.employees.push(name);
   }
 }
+
+const employee1 = Department.createEmployee('Max');
+console.log(employee1, Department.fiscalYear);
 
 const it = new ITDepartment('d1', ['Max']);
 it.addEmployee('Max');
