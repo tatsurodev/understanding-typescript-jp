@@ -23,18 +23,43 @@ class Department {
   }
 }
 
-const accounting = new Department('d1', 'Accounting');
-accounting.addEmployee('Max');
-accounting.addEmployee('Manu');
+class ITDepartment extends Department {
+  admins: string[];
+  constructor(id: string, admins: string[]) {
+    super(id, 'IT');
+    // superを呼び出す前にthisは使用できないでの注意
+    this.admins = admins;
+  }
+}
 
-// accounting.employees[2] = 'Anna';
-accounting.name = 'NEW NAME';
+class AccountingDepartment extends Department {
+  constructor(id: string, private reports: string[]) {
+    super(id, 'Accounting');
+  }
+  addReport(text: string) {
+    this.reports.push(text);
+  }
+  printReports() {
+    console.log(this.reports);
+  }
+}
 
-accounting.describe();
-accounting.printEmployeeInformation();
+const it = new ITDepartment('d1', ['Max']);
+it.addEmployee('Max');
+it.addEmployee('Manu');
 
+// it.employees[2] = 'Anna';
+// it.name = 'NEW NAME';
+
+it.describe();
+it.printEmployeeInformation();
+console.log(it);
 /*
 const accountingCopy = { name: 'DUMMY', describe: accounting.describe };
 // accountingCopyにname propertyがない時にaccountingCopy.describe()すると、describe methodでthisの型をDepartmentにしているのでerrorが出る
 accountingCopy.describe();
 */
+
+const accounting = new AccountingDepartment('d2', []);
+accounting.addReport('Something');
+accounting.printReports();
