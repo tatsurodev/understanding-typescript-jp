@@ -20,7 +20,6 @@ function add(a: number, b: number) {
 const add = (a: number, b: number) => {
   return a + b;
 }
-*/
 const add = (a: number, b: number = 1) => a + b;
 
 // allow functionの引数が1つの時、丸括弧は省略できるが引数の型を指定できなくなるので、関数を格納する変数に関数型を指定する
@@ -28,6 +27,7 @@ const printOutput: (output: string | number) => void = output => {
   console.log(output);
 }
 printOutput(add(2));
+*/
 
 const button = document.querySelector('button');
 if (button) {
@@ -72,3 +72,15 @@ const person = {
 const copiedPerson = {
   ...person,
 };
+
+// rest parameter
+const add = (...numbers: number[]) => {
+  return numbers.reduce((curResult, curValue) => {
+    return curResult + curValue;
+  }, 0);
+};
+// rest parameterをtupleにして引数の長さを制限
+// const add = (...numbers: [number, number, number]) => { }
+
+const addedNumbers = add(5, 10, 2, 3.7);
+console.log(addedNumbers);
