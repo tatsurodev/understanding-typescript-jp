@@ -21,13 +21,13 @@ const add = (a: number, b: number) => {
   return a + b;
 }
 */
-const add = (a: number, b: number) => a + b;
+const add = (a: number, b: number = 1) => a + b;
 
 // allow functionの引数が1つの時、丸括弧は省略できるが引数の型を指定できなくなるので、関数を格納する変数に関数型を指定する
 const printOutput: (output: string | number) => void = output => {
   console.log(output);
 }
-printOutput(add(2, 5));
+printOutput(add(2));
 
 const button = document.querySelector('button');
 if (button) {
