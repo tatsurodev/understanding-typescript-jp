@@ -1,51 +1,40 @@
-// type AddFn = (a: number, b: number) => number;
-// 関数型のinterface, objectの型の中に無名methodがある感じ
-interface AddFn {
-  (a: number, b: number): number;
+// object型(interface, type alias)の交差: それぞれのobjectが結合されたもの
+// type aliasで交差型
+type Admin = {
+  name: string;
+  privileges: string[];
 }
 
-let add: AddFn;
-add = (n1: number, n2: number) => {
-  return n1 + n2;
+type Employee = {
+  name: string;
+  startDate: Date;
 }
 
-// interfaceは具体的な実装を含まない、一方抽象classは具体的な実装と抽象的な実装の両方を含めることができる
-interface Named {
-  // readonlyで初期化の際一度だけ設定されることを担保できる
-  readonly name?: string;
-  outputNmae?: string;
-  // methodもoptional可
-  // greet?(phrase: string): void;
+// 交差型、2つの型を結合
+type ElevatedEmployee = Admin & Employee;
+
+// interfaceで交差型
+/*
+interface Admin {
+  name: string;
+  privileges: string[];
 }
 
-interface Greetable extends Named {
-  greet(phrase: string): void;
+interface Employee {
+  name: string;
+  startDate: Date;
 }
 
-// type Person = {};
+interface ElevatedEmployee extends Admin, Employee { }
+*/
 
-class Person implements Greetable {
-  // readonlyは推論されるので不要
-  name?: string;
-  age = 30;
-
-  constructor(n?: string) {
-    if (n) {
-      this.name = n;
-    }
-  }
-  greet(phrase: string) {
-    if (this.name) {
-      console.log(phrase + ' ' + this.name);
-    } else {
-      console.log('Hi!');
-    }
-  }
+const e1: ElevatedEmployee = {
+  name: 'Max',
+  privileges: ['create-server'],
+  startDate: new Date(),
 }
 
-let user1: Greetable;
-user1 = new Person();
-// Person classのnameはreadonlyを付けていないがGreetable interfaceの実装によって機能する
-// user1.name = 'Manu';
-user1.greet('Hello I am');
-console.log(user1);
+// union型の交差: 共通の部分
+type Combinable = string | number;
+type Numeric = number | boolean;
+type Universal = Combinable & Numeric;
