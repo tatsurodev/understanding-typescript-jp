@@ -14,6 +14,8 @@ interface Named {
   // readonlyで初期化の際一度だけ設定されることを担保できる
   readonly name?: string;
   outputNmae?: string;
+  // methodもoptional可
+  // greet?(phrase: string): void;
 }
 
 interface Greetable extends Named {
