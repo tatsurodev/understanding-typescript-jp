@@ -1,27 +1,27 @@
 "use strict";
-const button = document.querySelector('button');
-if (button) {
-    button.addEventListener('click', event => {
-        console.log(event);
-    });
-}
-const hobbies = ['Sports', 'Cooking'];
-const activeHobbies = ['Hiking', ...hobbies];
-activeHobbies.push(...hobbies);
-const person = {
-    firstName: 'Max',
-    age: 30,
+var add;
+add = function (n1, n2) {
+    return n1 + n2;
 };
-const copiedPerson = Object.assign({}, person);
-const add = (...numbers) => {
-    return numbers.reduce((curResult, curValue) => {
-        return curResult + curValue;
-    }, 0);
-};
-const addedNumbers = add(5, 10, 2, 3.7);
-console.log(addedNumbers);
-const [hobby1, hobby2, ...remainingHobbies] = hobbies;
-console.log(hobbies, hobby1, hobby2);
-const { firstName: userName, age } = person;
-console.log(userName, age, person);
+var Person = (function () {
+    function Person(n) {
+        this.age = 30;
+        if (n) {
+            this.name = n;
+        }
+    }
+    Person.prototype.greet = function (phrase) {
+        if (this.name) {
+            console.log(phrase + ' ' + this.name);
+        }
+        else {
+            console.log('Hi!');
+        }
+    };
+    return Person;
+}());
+var user1;
+user1 = new Person();
+user1.greet('Hello I am');
+console.log(user1);
 //# sourceMappingURL=app.js.map
