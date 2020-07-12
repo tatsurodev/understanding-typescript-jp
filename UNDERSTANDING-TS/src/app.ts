@@ -1,4 +1,4 @@
-class Department {
+abstract class Department {
   static fiscalYear = 2020;
   // private readonly id: string;
   // name: string;
@@ -11,7 +11,7 @@ class Department {
   }
 
   // constructorの引数内でpublicを使用する場合は省略不可
-  constructor(private readonly id: string, public name: string) {
+  constructor(protected readonly id: string, public name: string) {
     // this.id = id;
     // this.name = n;
     // staticでない場所、つまりstaticでないmethodやpropertyからstatic memberにはaccessできない。thisはclassではなくinstanceを指し示すものなのでerrorとなる
@@ -19,9 +19,7 @@ class Department {
     console.log(Department.fiscalYear);
   }
   // thisの型を括弧内で与えることができる
-  describe(this: Department) {
-    console.log(`Department (${this.id}): ${this.name}`);
-  }
+  abstract describe(this: Department): void;
   addEmployee(employee: string) {
     // validation系の処理も追加できるので、下記のaccounting.employees[2]='Anna';のように直接外部からaccessして変更できるような仕様は良くない。employeesをprivateにしてこのmethodを通じてのみ変更できるようにする
     // this.id = 'd2';
@@ -39,6 +37,9 @@ class ITDepartment extends Department {
     super(id, 'IT');
     // superを呼び出す前にthisは使用できないでの注意
     this.admins = admins;
+  }
+  describe() {
+    console.log('IT部門 - ID: ' + this.id);
   }
 }
 
@@ -59,6 +60,9 @@ class AccountingDepartment extends Department {
   constructor(id: string, private reports: string[]) {
     super(id, 'Accounting');
     this.lastReport = reports[0];
+  }
+  describe() {
+    console.log('会計部門 - ID: ' + this.id);
   }
   addReport(text: string) {
     this.reports.push(text);
@@ -98,7 +102,8 @@ const accounting = new AccountingDepartment('d2', []);
 accounting.mostRecentReport = '通期会計レポート';
 accounting.addReport('Something');
 console.log(accounting.mostRecentReport);
-accounting.printReports();
 accounting.addEmployee('Max');
 accounting.addEmployee('Manu');
-accounting.printEmployeeInformation();
+// accounting.printReports();
+// accounting.printEmployeeInformation();
+accounting.describe();
