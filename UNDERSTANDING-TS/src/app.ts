@@ -1,8 +1,10 @@
 // interfaceは具体的な実装を含まない、一方抽象classは具体的な実装と抽象的な実装の両方を含めることができる
-interface Greetable {
+interface Named {
   // readonlyで初期化の際一度だけ設定されることを担保できる
   readonly name: string;
+}
 
+interface Greetable extends Named {
   greet(phrase: string): void;
 }
 
