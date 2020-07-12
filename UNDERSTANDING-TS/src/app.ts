@@ -1,3 +1,14 @@
+// type AddFn = (a: number, b: number) => number;
+// 関数型のinterface, objectの型の中に無名methodがある感じ
+interface AddFn {
+  (a: number, b: number): number;
+}
+
+let add: AddFn;
+add = (n1: number, n2: number) => {
+  return n1 + n2;
+}
+
 // interfaceは具体的な実装を含まない、一方抽象classは具体的な実装と抽象的な実装の両方を含めることができる
 interface Named {
   // readonlyで初期化の際一度だけ設定されることを担保できる
