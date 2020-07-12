@@ -1,6 +1,7 @@
 // interfaceは具体的な実装を含まない、一方抽象classは具体的な実装と抽象的な実装の両方を含めることができる
 interface Greetable {
-  name: string;
+  // readonlyで初期化の際一度だけ設定されることを担保できる
+  readonly name: string;
 
   greet(phrase: string): void;
 }
@@ -8,6 +9,7 @@ interface Greetable {
 // type Person = {};
 
 class Person implements Greetable {
+  // readonlyは推論されるので不要
   name: string;
   age = 30;
 
@@ -21,5 +23,7 @@ class Person implements Greetable {
 
 let user1: Greetable;
 user1 = new Person('Max');
+// Person classのnameはreadonlyを付けていないがGreetable interfaceの実装によって機能する
+// user1.name = 'Manu';
 user1.greet('Hello I am');
 console.log(user1);
