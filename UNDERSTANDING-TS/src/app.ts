@@ -12,7 +12,8 @@ add = (n1: number, n2: number) => {
 // interfaceは具体的な実装を含まない、一方抽象classは具体的な実装と抽象的な実装の両方を含めることができる
 interface Named {
   // readonlyで初期化の際一度だけ設定されることを担保できる
-  readonly name: string;
+  readonly name?: string;
+  outputNmae?: string;
 }
 
 interface Greetable extends Named {
@@ -23,19 +24,25 @@ interface Greetable extends Named {
 
 class Person implements Greetable {
   // readonlyは推論されるので不要
-  name: string;
+  name?: string;
   age = 30;
 
-  constructor(n: string) {
-    this.name = n;
+  constructor(n?: string) {
+    if (n) {
+      this.name = n;
+    }
   }
   greet(phrase: string) {
-    console.log(phrase + ' ' + this.name);
+    if (this.name) {
+      console.log(phrase + ' ' + this.name);
+    } else {
+      console.log('Hi!');
+    }
   }
 }
 
 let user1: Greetable;
-user1 = new Person('Max');
+user1 = new Person();
 // Person classのnameはreadonlyを付けていないがGreetable interfaceの実装によって機能する
 // user1.name = 'Manu';
 user1.greet('Hello I am');
