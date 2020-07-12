@@ -45,6 +45,9 @@ class ITDepartment extends Department {
 
 class AccountingDepartment extends Department {
   private lastReport: string;
+  // staticでないとinitializeする必要が出てくるのでclass固有のstatic instanceで外部からaccess不可のprivateとする
+  private static instance: AccountingDepartment;
+
   get mostRecentReport() {
     if (this.lastReport) {
       return this.lastReport;
@@ -57,9 +60,17 @@ class AccountingDepartment extends Department {
     }
     this.addReport(value)
   }
-  constructor(id: string, private reports: string[]) {
+  private constructor(id: string, private reports: string[]) {
     super(id, 'Accounting');
     this.lastReport = reports[0];
+  }
+  static getInstance() {
+    // static method内からのaccessなのでこのthisはclass自体を指し示す
+    if (this.instance) {
+      return this.instance;
+    }
+    this.instance = new AccountingDepartment('d2', []);
+    return this.instance;
   }
   describe() {
     console.log('会計部門 - ID: ' + this.id);
@@ -98,7 +109,11 @@ const accountingCopy = { name: 'DUMMY', describe: accounting.describe };
 accountingCopy.describe();
 */
 
-const accounting = new AccountingDepartment('d2', []);
+// const accounting = new AccountingDepartment('d2', []);
+const accounting = AccountingDepartment.getInstance();
+const accounting2 = AccountingDepartment.getInstance();
+// AccountingDepartmentはsingletonなのでaccountingとaccounting2は同一instance
+console.log('accounting === accounting2 is ', accounting === accounting2);
 accounting.mostRecentReport = '通期会計レポート';
 accounting.addReport('Something');
 console.log(accounting.mostRecentReport);
