@@ -120,3 +120,16 @@ function moveAnimal(animal: Animal) {
 }
 
 moveAnimal({ type: 'bird', flyingSpeed: 10 });
+
+// 前からtype cast, reactのjsxと衝突する可能性あり
+// const userInputElement = <HTMLInputElement>document.getElementById('user-input')!;
+// 後ろからtype cast
+const userInputElement = document.getElementById('user-input')! as HTMLInputElement;
+userInputElement.value = 'こんにちは';
+// non-null assertion operatorを使用しないversion
+/*
+const userInputElement = document.getElementById('user-input');
+if (userInputElement) {
+  (userInputElement as HTMLInputElement).value = 'こんにちは';
+}
+*/
