@@ -128,8 +128,24 @@ const userInputElement = document.getElementById('user-input')! as HTMLInputElem
 userInputElement.value = 'こんにちは';
 // non-null assertion operatorを使用しないversion
 /*
+type castをしようするとnullでないことを意味するためここではtype castしない
 const userInputElement = document.getElementById('user-input');
 if (userInputElement) {
   (userInputElement as HTMLInputElement).value = 'こんにちは';
 }
 */
+
+// index type, index signature
+interface ErrorContainer {
+  // 分かっているpropertyを明記したい時
+  // error
+  // id: number;
+  // ok
+  // id: string;
+  [prop: string]: string;
+}
+
+const errorBag: ErrorContainer = {
+  emial: 'メールアドレスではありません',
+  username: 'ユーザー名に記号を含めることはできません',
+};
