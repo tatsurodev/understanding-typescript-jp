@@ -70,6 +70,14 @@ const fetchedUserData = {
 // console.log(fetchedUserData.job && fetchedUserData.job.title);
 console.log(fetchedUserData?.job?.title);
 
+// null合体演算子、nullish coalescing operator
+const userInput = '';
+// 論理or演算子、左がfalseならで右の値
+// null, undefinedならDefaultだが、''空文字列や{}空ojbectでもfalseとなってしまいDefaultとなってしまう。ユーザーが入力した空文字列、空objectを保持したい時は、null合体演算子を使う
+// const storedData = userInput || 'Default';
+const storeData = userInput ?? 'Default';
+console.log(storeData);
+
 // type UnknownEmployee = Employee | Admin;
 // function printEmployeeInformation(emp: UnknownEmployee) {
 //   console.log(emp.name);
