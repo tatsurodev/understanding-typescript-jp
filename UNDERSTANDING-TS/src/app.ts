@@ -56,6 +56,20 @@ function add(a: Combinable, b: Combinable) {
 const result = add('Hello', 'TypeScript');
 result.split(' ');
 
+// optional chain
+const fetchedUserData = {
+  id: 'u1',
+  name: 'user1',
+  job: {
+    title: 'Developer',
+    description: 'TypeScript',
+  },
+};
+
+// 特定のpropertyが存在するかどうかわからない時のjavascriptのやり方
+// console.log(fetchedUserData.job && fetchedUserData.job.title);
+console.log(fetchedUserData?.job?.title);
+
 // type UnknownEmployee = Employee | Admin;
 // function printEmployeeInformation(emp: UnknownEmployee) {
 //   console.log(emp.name);
