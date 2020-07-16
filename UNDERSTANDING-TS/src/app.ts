@@ -28,3 +28,17 @@ const mergedObj = merge({ name: 'Max', hobbies: ['Sports'] }, { age: 30 });
 // genericsの型を推論させるのではなく明示させることもできるが冗長なでの上の引数の方から返り値も推論させるのがbetter
 // const mergedObj = merge<{ name: string; hobbies: string[] }, { age: number }>({ name: 'Max', hobbies: ['Sports'] }, { age: 30 });
 console.log(mergedObj);
+
+interface Lengthy {
+  length: number;
+}
+
+// 引数elementがlength propertyを持つことを確約させるためにinterface Lengthyを作成
+function countAndDescribe<T extends Lengthy>(element: T): [T, string] {
+  let descriptionText = '値がありません';
+  if (element.length > 0) {
+    descriptionText = '値は' + element.length + '個です。';
+  }
+  return [element, descriptionText];
+}
+console.log(countAndDescribe(['Sports', 'Cooking']));
