@@ -49,3 +49,40 @@ function extractAndConvert<T extends object, U extends keyof T>(obj: T, key: U) 
 }
 
 extractAndConvert({ name: 'Max' }, 'name');
+
+// generics class
+class DataStorage<T extends string | number | boolean> {
+  private data: T[] = [];
+  addItem(item: T) {
+    this.data.push(item);
+  }
+  removeItem(item: T) {
+    // indexOfで要素が見つからない時
+    if (this.data.indexOf(item) === -1) {
+      return;
+    }
+    // indexOfで要素が見つからない時、-1が返ってくるので-1の時最後の要素が削除されてしまう
+    this.data.splice(this.data.indexOf(item), 1);
+  }
+  getItems() {
+    return [...this.data];
+  }
+}
+
+const textStorage = new DataStorage<string>();
+textStorage.addItem('Data1');
+textStorage.addItem('Data2');
+textStorage.removeItem('Data1');
+console.log(textStorage.getItems());
+
+const numberStorage = new DataStorage<number>();
+
+// object型の場合、objectを変数に格納しないと正しく機能しないのでgenerics classに制約を加えobjectが入り込まないようにする
+// const objStorage = new DataStorage<object>();
+// const obj = { name: 'Max' }
+// objStorage.addItem(obj);
+// objStorage.addItem({ name: 'Manu' });
+// // ...
+// objStorage.removeItem(obj);
+// console.log(objStorage.getItems());
+
