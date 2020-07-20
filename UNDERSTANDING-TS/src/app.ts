@@ -86,3 +86,28 @@ const numberStorage = new DataStorage<number>();
 // objStorage.removeItem(obj);
 // console.log(objStorage.getItems());
 
+// generics utility
+interface CourseGoal {
+  title: string;
+  description: string;
+  completeUntil: Date;
+}
+
+function createCourseGoal(
+  title: string,
+  description: string,
+  completeUntil: Date
+): CourseGoal {
+  // propertyをoptionalにした型を返す
+  let courseGoal: Partial<CourseGoal> = {};
+  courseGoal.title = title;
+  courseGoal.description = description;
+  courseGoal.completeUntil = completeUntil;
+  // Partial<CourseGoal>ではなく必要なpropertyが全て追加されているのでCourseGoal型にcastしておｋ
+  return courseGoal as CourseGoal;
+}
+
+// 要素の追加できないようにReadonlyを付与するutilityを使用する
+const names: Readonly<string[]> = ['Max', 'Anna'];
+// names.push('Manu');
+// names.pop();
