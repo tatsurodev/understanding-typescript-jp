@@ -11,13 +11,22 @@ function Logger(logString: string) {
 function WithTemplate(template: string, hookId: string) {
   console.log('TEMPLATE ファクトリ');
   // constructorを使用しない時は_
-  return function (constructor: any) {
-    console.log('テンプレートを表示');
-    const hookEl = document.getElementById(hookId);
-    const p = new constructor();
-    if (hookEl) {
-      hookEl.innerHTML = template;
-      hookEl.querySelector('h1')!.textContent = p.name;
+  // classに追加されるdecoratorはconstructorを返すことができる。これによって定義時ではなく、instance化の時にdecoratorを実行できる
+  // classに制約を加えるには{}で指定し、new keywordでconstructor関数であることを伝える
+  return function <T extends { new(...args: any[]): { name: string } }>(originalConstructor: T) {
+    // 元のclassのconstructorを継承できる
+    return class extends originalConstructor {
+      constructor(..._: any[]) {
+        // 元のclassのconstructorを呼び出し
+        super();
+        // 追加のlogic
+        console.log('テンプレートを表示');
+        const hookEl = document.getElementById(hookId);
+        if (hookEl) {
+          hookEl.innerHTML = template;
+          hookEl.querySelector('h1')!.textContent = this.name;
+        }
+      }
     }
   }
 }
