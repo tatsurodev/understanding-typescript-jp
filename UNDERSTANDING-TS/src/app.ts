@@ -43,11 +43,36 @@ function Log(target: any, propertyName: string | Symbol) {
   console.log(target, propertyName);
 }
 
+// accessor decorator, 引数はprototype or constructor, accessorName, descriptor(setter, getter等)
+function Log2(target: any, name: string, descriptor: PropertyDescriptor) {
+  console.log('Accessor デコレータ');
+  console.log(target);
+  console.log(name);
+  console.log(descriptor);
+}
+
+// method decorator, 引数はprototype or constructor, methodName, descriptor(value, writable等)
+function Log3(target: any, name: string | Symbol, descriptor: PropertyDescriptor) {
+  console.log('Method デコレータ');
+  console.log(target);
+  console.log(name);
+  console.log(descriptor);
+}
+
+// parameter decorator, 引数はprototype, methodName, positionNumber
+function Log4(target: any, name: string | Symbol, position: number) {
+  console.log('Parameter デコレータ');
+  console.log(target);
+  console.log(name);
+  console.log(position);
+}
+
 class Product {
   @Log
   title: string;
   private _price: number;
 
+  @Log2
   set price(val: number) {
     if (this._price > 0) {
       this._price = val;
@@ -61,7 +86,8 @@ class Product {
     this._price = p;
   }
 
-  getPriceWithTax(tax: number) {
+  @Log3
+  getPriceWithTax(@Log4 tax: number) {
     return this._price * (1 + tax);
   }
 }
