@@ -135,3 +135,44 @@ const p = new Printer();
 const button = document.querySelector('button')!;
 // Autobind decoratorを使用しない時、p.showMessageのthisはbutton elementを指し示すこととなり、this.messageはundefinedになってしまうので、thisをAutobind descriptorで正しくbindする
 button.addEventListener('click', p.showMessage);
+
+function Required() {
+
+}
+
+function PositiveNumber() {
+
+}
+
+function validate(obj: object) {
+
+}
+
+class Course {
+  @Required
+  title: string;
+  @PositiveNumber
+  price: number;
+  constructor(t: string, p: number) {
+    this.title = t;
+    this.price = p;
+  }
+}
+
+const courseForm = document.querySelector('form')!;
+courseForm.addEventListener('submit', event => {
+  event.preventDefault();
+  const titleEl = document.getElementById('title') as HTMLInputElement;
+  const priceEl = document.getElementById('price') as HTMLInputElement;
+
+  const title = titleEl.value;
+  const price = +priceEl.value;
+
+  const createdCourse = new Course(title, price);
+  // validationが通らなければalert
+  if (!validate(createdCourse)) {
+    alert('正しく入力して下さい！');
+    return;
+  }
+  console.log(createdCourse);
+});
