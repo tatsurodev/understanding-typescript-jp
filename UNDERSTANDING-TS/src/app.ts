@@ -136,16 +136,60 @@ const button = document.querySelector('button')!;
 // Autobind decoratorを使用しない時、p.showMessageのthisはbutton elementを指し示すこととなり、this.messageはundefinedになってしまうので、thisをAutobind descriptorで正しくbindする
 button.addEventListener('click', p.showMessage);
 
-function Required() {
+interface ValidatorConfig {
+  [prop: string]: {
+    [validatableProp: string]: string[] // ['required', 'positive']
+  }
+}
+
+const registeredValidators: ValidatorConfig = {};
+
+function Required(target: any, propName: string) {
+  // target.constructor.nameでclassの名前にaccess、registeredValidators[target.constructor.name]でValidatorConfigのkeyとなるprop部をセット
+  registeredValidators[target.constructor.name] = {
+    // sread operatorで元からある設定に追加
+    ...registeredValidators[target.constructor.name],
+    // ValidatorConfigの[validatableProp: string]: string[]の部分
+    [propName]: ['required']
+  }
+}
+
+function PositiveNumber(target: any, propName: string) {
+  registeredValidators[target.constructor.name] = {
+    ...registeredValidators[target.constructor.name],
+    [propName]: ['positive']
+  }
 
 }
 
-function PositiveNumber() {
-
-}
-
-function validate(obj: object) {
-
+function validate(obj: any) {
+  // 右辺は、registeredValidators['Course']等になり、各validatorのconfigが取得できる
+  const objValidatorConfig = registeredValidators[obj.constructor.name];
+  if (!objValidatorConfig) {
+    return true;
+  }
+  // for loopでobjValidatorConfigが空だった時値が返されないのでdefaultでtrueとする
+  let isValid = true;
+  // for inでobjectのkeyをloop
+  for (const prop in objValidatorConfig) {
+    console.log(prop);
+    // for ofでiterableをloop
+    for (const validator of objValidatorConfig[prop]) {
+      switch (validator) {
+        case 'required':
+          // logical operator
+          // exp1 && exp2: exp1がfalseならexp1, trueならexp2
+          // exp1 || exp2: exp1がtrueならexp1, falseならexp2
+          // falseならisValidつまりfalseのまま, tureならvalidation結果のobj[prop]をboolean化して格納
+          isValid = isValid && !!obj[prop];
+          break;
+        case 'positive':
+          isValid = isValid && obj[prop] > 0;
+          break;
+      }
+    }
+  }
+  return isValid;
 }
 
 class Course {
