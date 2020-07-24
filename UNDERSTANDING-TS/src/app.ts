@@ -104,3 +104,34 @@ class Product {
 // decoratorはclassをinstanceした時に実行されるのではなく、定義時に実行
 const p1 = new Product('Book', 100);
 const p2 = new Product('Book2', 200);
+
+// mehtod decoratorで調整済みのdescriptorを返すことで、対象methodを修正できる
+function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
+  // 元のmethodをdescriptor.valueで取得し格納
+  const originalMethod = descriptor.value;
+  // adjはadjustment, ここで新たなdescriptorを作成している
+  const adjDescriptor: PropertyDescriptor = {
+    configurable: true,
+    enumerable: false,
+    get() {
+      // 元のmethodに正しいthisをbind
+      const boundFn = originalMethod.bind(this);
+      return boundFn;
+    }
+  };
+  return adjDescriptor;
+}
+
+class Printer {
+  message = 'クリックしました！';
+  @Autobind
+  showMessage() {
+    console.log(this.message);
+  }
+}
+
+const p = new Printer();
+
+const button = document.querySelector('button')!;
+// Autobind decoratorを使用しない時、p.showMessageのthisはbutton elementを指し示すこととなり、this.messageはundefinedになってしまうので、thisをAutobind descriptorで正しくbindする
+button.addEventListener('click', p.showMessage);
