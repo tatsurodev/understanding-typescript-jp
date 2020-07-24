@@ -91,3 +91,7 @@ class Product {
     return this._price * (1 + tax);
   }
 }
+
+// decoratorはclassをinstanceした時に実行されるのではなく、定義時に実行
+const p1 = new Product('Book', 100);
+const p2 = new Product('Book2', 200);
