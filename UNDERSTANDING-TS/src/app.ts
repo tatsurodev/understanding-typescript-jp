@@ -144,22 +144,34 @@ interface ValidatorConfig {
 
 const registeredValidators: ValidatorConfig = {};
 
-function Required(target: any, propName: string) {
+function Required(target: any, propertyName: string) {
   // target.constructor.nameでclassの名前にaccess、registeredValidators[target.constructor.name]でValidatorConfigのkeyとなるprop部をセット
   registeredValidators[target.constructor.name] = {
-    // sread operatorで元からある設定に追加
+    // spread operatorで元からある設定に追加
     ...registeredValidators[target.constructor.name],
     // ValidatorConfigの[validatableProp: string]: string[]の部分
-    [propName]: ['required']
+    [propertyName]: [
+      ...(
+        // registeredValidators[target.constructor.name][propertyName]がnullなら[]で初期化
+        registeredValidators[target.constructor.name]?.[propertyName] ??
+        []
+      ),
+      'required'
+    ]
   }
 }
 
-function PositiveNumber(target: any, propName: string) {
+function PositiveNumber(target: any, propertyName: string) {
   registeredValidators[target.constructor.name] = {
     ...registeredValidators[target.constructor.name],
-    [propName]: ['positive']
+    [propertyName]: [
+      ...(
+        registeredValidators[target.constructor.name]?.[propertyName] ??
+        []
+      ),
+      'positive'
+    ]
   }
-
 }
 
 function validate(obj: any) {
@@ -194,6 +206,8 @@ function validate(obj: any) {
 
 class Course {
   @Required
+  @PositiveNumber
+  @PositiveNumber
   title: string;
   @PositiveNumber
   price: number;
@@ -202,6 +216,8 @@ class Course {
     this.price = p;
   }
 }
+
+console.log('registeredValidators', registeredValidators);
 
 const courseForm = document.querySelector('form')!;
 courseForm.addEventListener('submit', event => {
