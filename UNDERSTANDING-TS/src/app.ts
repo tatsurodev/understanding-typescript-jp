@@ -1,3 +1,45 @@
+// project state management
+// 状態管理は1箇所のみで管理したいのでsingleton
+class ProjectState {
+  // event listenderを管理, 状態変化がある度この配列に格納された関数が実行される
+  private listeners: any[] = [];
+  private projects: any[] = [];
+  private static instance: ProjectState;
+
+  private constructor() { }
+
+  static getInstance() {
+    if (this.instance) {
+      return this.instance;
+    }
+    this.instance = new ProjectState();
+    return this.instance;
+  }
+
+  addListener(listenerFn: Function) {
+    this.listeners.push(listenerFn);
+  }
+
+  addProject(title: string, description: string, manday: number) {
+    // 新規のproject
+    const newProject = {
+      id: Math.random().toString(),
+      title: title,
+      description: description,
+      manday: manday,
+    };
+    // 新規のprojectを格納
+    this.projects.push(newProject);
+    for (const listenerFn of this.listeners) {
+      // projectsのcopyを引数に与えることで、listener関数によって元のprojectsが変更されないようにする
+      listenerFn(this.projects.slice());
+    }
+  }
+}
+
+// stateをglobalに使用できるように取得
+const projectState = ProjectState.getInstance();
+
 // validation
 // validationの対象となるobjectの型
 interface Validatable {
@@ -71,16 +113,32 @@ class ProjectList {
   hostElement: HTMLDivElement;
   // section tagなのでHTMLElementでおｋ
   element: HTMLElement;
+  assignedProjects: any[];
 
   constructor(private type: 'active' | 'finished') {
     this.templateElement = document.getElementById('project-list')! as HTMLTemplateElement;
     this.hostElement = document.getElementById('app')! as HTMLDivElement;
+    this.assignedProjects = [];
 
     const importedNode = document.importNode(this.templateElement.content, true);
     this.element = importedNode.firstElementChild as HTMLElement;
     this.element.id = `${this.type}-projects`;
+
+    projectState.addListener((projects: any[]) => {
+      this.assignedProjects = projects;
+      this.renderProjects();
+    });
     this.attach();
     this.renderContent();
+  }
+
+  private renderProjects() {
+    const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
+    for (const prjItem of this.assignedProjects) {
+      const listItem = document.createElement('li');
+      listItem.textContent = prjItem.title;
+      listEl.appendChild(listItem);
+    }
   }
 
   private renderContent() {
@@ -172,7 +230,7 @@ class ProjectInput {
     if (Array.isArray(userInput)) {
       const [title, desc, manday] = userInput;
       // 入力値を使ってやりたい操作
-      console.log(title, desc, manday);
+      projectState.addProject(title, desc, manday);
       this.clearInputs();
     }
   }
