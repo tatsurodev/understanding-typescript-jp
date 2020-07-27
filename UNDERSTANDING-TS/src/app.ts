@@ -9,17 +9,27 @@ class Project {
 }
 
 // listnerの型
-type Listener = (items: Project[]) => void;
+type Listener<T> = (items: T[]) => void;
+
+// stateはuserに関するもの、projectに関するもの等様々なstate毎に管理する必要がある可能性があるのでbaseのstateを作成すると便利
+class State<T> {
+  // event listenderを管理, 状態変化がある度この配列に格納された関数が実行される
+  protected listeners: Listener<T>[] = [];
+
+  addListener(listenerFn: Listener<T>) {
+    this.listeners.push(listenerFn);
+  }
+}
 
 // project state management
 // 状態管理は1箇所のみで管理したいのでsingleton
-class ProjectState {
-  // event listenderを管理, 状態変化がある度この配列に格納された関数が実行される
-  private listeners: Listener[] = [];
+class ProjectState extends State<Project> {
   private projects: Project[] = [];
   private static instance: ProjectState;
 
-  private constructor() { }
+  private constructor() {
+    super();
+  }
 
   static getInstance() {
     if (this.instance) {
@@ -27,10 +37,6 @@ class ProjectState {
     }
     this.instance = new ProjectState();
     return this.instance;
-  }
-
-  addListener(listenerFn: Listener) {
-    this.listeners.push(listenerFn);
   }
 
   addProject(title: string, description: string, manday: number) {
@@ -121,23 +127,57 @@ function autobind(
   return adjDescriptor;
 }
 
-// projectのlistを表示
-class ProjectList {
+// component class, instance化されないためにもabstract classに
+abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   templateElement: HTMLTemplateElement;
-  hostElement: HTMLDivElement;
-  // section tagなのでHTMLElementでおｋ
-  element: HTMLElement;
+  // hostElement, elementはclassによって異なるのでgenericsを使用する
+  hostElement: T;
+  element: U;
+
+  // constructorは基本的に要素への参照
+  constructor(
+    templateId: string,
+    hostElementId: string,
+    insertAtStart: boolean,
+    newElementId?: string,
+  ) {
+    this.templateElement = document.getElementById(templateId)! as HTMLTemplateElement;
+    this.hostElement = document.getElementById(hostElementId)! as T;
+
+    const importedNode = document.importNode(this.templateElement.content, true);
+    this.element = importedNode.firstElementChild as U;
+    // optional parameterなので存在をcheck
+    if (newElementId) {
+      this.element.id = newElementId;
+    }
+
+    this.attach(insertAtStart);
+  }
+
+  abstract configure(): void;
+  abstract renderContent(): void;
+
+  // 要素の追加
+  private attach(insertAtBeginning: boolean) {
+    this.hostElement.insertAdjacentElement(
+      insertAtBeginning ? 'afterbegin' : 'beforeend',
+      this.element
+    );
+  }
+}
+
+// projectのlistを表示
+class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   assignedProjects: Project[];
 
   constructor(private type: 'active' | 'finished') {
-    this.templateElement = document.getElementById('project-list')! as HTMLTemplateElement;
-    this.hostElement = document.getElementById('app')! as HTMLDivElement;
+    super('project-list', 'app', false, `${type}-projects`);
     this.assignedProjects = [];
+    this.configure();
+    this.renderContent();
+  }
 
-    const importedNode = document.importNode(this.templateElement.content, true);
-    this.element = importedNode.firstElementChild as HTMLElement;
-    this.element.id = `${this.type}-projects`;
-
+  configure() {
     projectState.addListener((projects: Project[]) => {
       const relevantProjects = projects.filter(prj => {
         if (this.type === 'active') {
@@ -148,8 +188,13 @@ class ProjectList {
       this.assignedProjects = relevantProjects;
       this.renderProjects();
     });
-    this.attach();
-    this.renderContent();
+  }
+
+  // abstract methodはprivate不可
+  renderContent() {
+    const listId = `${this.type}-projects-list`;
+    this.element.querySelector('ul')!.id = listId;
+    this.element.querySelector('h2')!.textContent = this.type === 'active' ? '実行中プロジェクト' : '完了プロジェクト';
   }
 
   private renderProjects() {
@@ -161,44 +206,31 @@ class ProjectList {
       listEl.appendChild(listItem);
     }
   }
-
-  private renderContent() {
-    const listId = `${this.type}-projects-list`;
-    this.element.querySelector('ul')!.id = listId;
-    this.element.querySelector('h2')!.textContent = this.type === 'active' ? '実行中プロジェクト' : '完了プロジェクト';
-  }
-
-  private attach() {
-    this.hostElement.insertAdjacentElement('beforeend', this.element);
-  }
 }
 
 // formの表示と入力値の取得を行うclass
-class ProjectInput {
-  templateElement: HTMLTemplateElement;
-  hostElement: HTMLDivElement;
-  element: HTMLFormElement;
+class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
   titleInputElement: HTMLInputElement;
   descriptionInputElement: HTMLInputElement;
   mandayInputElement: HTMLInputElement;
 
-  // constructorは基本的に要素への参照
   constructor() {
-    this.templateElement = document.getElementById('project-input')! as HTMLTemplateElement;
-    this.hostElement = document.getElementById('app')! as HTMLDivElement;
-
-    const importedNode = document.importNode(this.templateElement.content, true);
-    this.element = importedNode.firstElementChild as HTMLFormElement;
-    this.element.id = 'user-input';
-
+    super('project-input', 'app', true, 'user-input');
     // 各入力値への参照を取得
     this.titleInputElement = this.element.querySelector('#title') as HTMLInputElement;
     this.descriptionInputElement = this.element.querySelector('#description') as HTMLInputElement;
     this.mandayInputElement = this.element.querySelector('#manday') as HTMLInputElement;
 
     this.configure();
-    this.attach();
   }
+
+  // event listenerの設定
+  configure() {
+    // callbackのsubmitHandler内でのthisはelementであるformを指し示しており、classでないことからそのままではpropertyにaccessできないことに注意。bind、autobind系のdecoaratorを使用する必要あり
+    this.element.addEventListener('submit', this.submitHandler);
+  }
+
+  renderContent() { }
 
   // user inputのvalidationを行い、おｋなら取得
   private gatherUserInput(): [string, string, number] | void {
@@ -254,17 +286,6 @@ class ProjectInput {
       projectState.addProject(title, desc, manday);
       this.clearInputs();
     }
-  }
-
-  // event listenerの設定
-  private configure() {
-    // callbackのsubmitHandler内でのthisはelementであるformを指し示しており、classでないことからそのままではpropertyにaccessできないことに注意。bind、autobind系のdecoaratorを使用する必要あり
-    this.element.addEventListener('submit', this.submitHandler);
-  }
-
-  // 要素の追加
-  private attach() {
-    this.hostElement.insertAdjacentElement('afterbegin', this.element);
   }
 }
 
