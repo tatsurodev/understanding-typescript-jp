@@ -1,3 +1,21 @@
+// ここでのinterfaceは特定の機能を実装するための契約として使用する、チーム開発でもわかりやすくなる
+// drag & drop
+// drag可能な対象
+interface Draggable {
+  dragStartHandler(event: DragEvent): void;
+  dragEndHandler(event: DragEvent): void;
+}
+
+// drop可能な対象
+interface DragTarget {
+  // drag中にその場所が有効なdrop場所かどうかをcheck
+  dragOverHandler(event: DragEvent): void;
+  // drop時の処理
+  dropHandler(event: DragEvent): void;
+  // drop時のvisual feedbackを行う
+  dragLeaveHandler(event: DragEvent): void;
+}
+
 // project type
 enum ProjectStatus {
   Active, Finished
@@ -167,7 +185,8 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 }
 
 // project item class, project listで表示する各projectの項目
-class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement>
+  implements Draggable {
   private project: Project;
   // getterで取得する項目に柔軟性をもたせる
   get manday() {
@@ -186,7 +205,20 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
     this.renderContent();
   }
 
-  configure() { }
+  @autobind
+  dragStartHandler(event: DragEvent) {
+    console.log(event);
+  }
+
+  dragEndHandler(_: DragEvent) {
+    console.log('Drag終了');
+  }
+
+  configure() {
+    // dragstartは標準のdom event
+    this.element.addEventListener('dragstart', this.dragStartHandler);
+    this.element.addEventListener('dragend', this.dragEndHandler);
+  }
 
   renderContent() {
     this.element.querySelector('h2')!.textContent = this.project.title;
