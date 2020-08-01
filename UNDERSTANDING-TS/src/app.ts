@@ -207,7 +207,10 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement>
 
   @autobind
   dragStartHandler(event: DragEvent) {
-    console.log(event);
+    // drag eventに存在するdataTransferでdrag時にdataを保存、dropした時に利用可能なdataを渡す。setData(format, data)
+    event.dataTransfer!.setData('text/plain', this.project.id);
+    // drag中のcursorの形
+    event.dataTransfer!.effectAllowed = 'move';
   }
 
   dragEndHandler(_: DragEvent) {
@@ -241,11 +244,18 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement>
 
   // drag中にdrop可能な場所の時にその背景色を変える
   @autobind
-  dragOverHandler(_: DragEvent) {
-    const listEl = this.element.querySelector('ul')!;
-    listEl.classList.add('droppable');
+  dragOverHandler(event: DragEvent) {
+    if (event.dataTransfer && event.dataTransfer.types[0] === 'text/plain') {
+      // drag eventをpreventDefaultすることでdrop eventが呼び出されるようになる
+      event.preventDefault();
+      const listEl = this.element.querySelector('ul')!;
+      listEl.classList.add('droppable');
+    }
   }
-  dropHandler(_: DragEvent) { }
+  // drop時に実行
+  dropHandler(event: DragEvent) {
+    console.log(event.dataTransfer!.getData('text/plain'));
+  }
 
   // drag中にその要素を離れた時にvisualを変える
   @autobind
