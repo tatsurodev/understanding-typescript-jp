@@ -1,238 +1,398 @@
-// decorator factoryによりdecoratorをcustomizeする為に必要な引数を与えることができる
-function Logger(logString: string) {
-  console.log('LOGGER ファクトリ');
-  // decoratorは定義時に実行される、classに対して使用するのでtargetとなるconstructorを第一引数に受け取る
-  return function (constructor: Function) {
-    console.log(logString);
-    console.log(constructor);
+// ここでのinterfaceは特定の機能を実装するための契約として使用する、チーム開発でもわかりやすくなる
+// drag & drop
+// drag可能な対象
+interface Draggable {
+  dragStartHandler(event: DragEvent): void;
+  dragEndHandler(event: DragEvent): void;
+}
+
+// drop可能な対象
+interface DragTarget {
+  // drag中にその場所が有効なdrop場所かどうかをcheck
+  dragOverHandler(event: DragEvent): void;
+  // drop時の処理
+  dropHandler(event: DragEvent): void;
+  // drop時のvisual feedbackを行う
+  dragLeaveHandler(event: DragEvent): void;
+}
+
+// project type
+enum ProjectStatus {
+  Active, Finished
+}
+
+class Project {
+  constructor(public id: string, public title: string, public description: string, public manday: number, public status: ProjectStatus) {
   }
 }
 
-function WithTemplate(template: string, hookId: string) {
-  console.log('TEMPLATE ファクトリ');
-  // constructorを使用しない時は_
-  // classに追加されるdecoratorはconstructorを返すことができる。これによって定義時ではなく、instance化の時にdecoratorを実行できる
-  // classに制約を加えるには{}で指定し、new keywordでconstructor関数であることを伝える
-  return function <T extends { new(...args: any[]): { name: string } }>(originalConstructor: T) {
-    // 元のclassのconstructorを継承できる
-    return class extends originalConstructor {
-      constructor(..._: any[]) {
-        // 元のclassのconstructorを呼び出し
-        super();
-        // 追加のlogic
-        console.log('テンプレートを表示');
-        const hookEl = document.getElementById(hookId);
-        if (hookEl) {
-          hookEl.innerHTML = template;
-          hookEl.querySelector('h1')!.textContent = this.name;
-        }
-      }
+// listnerの型
+type Listener<T> = (items: T[]) => void;
+
+// stateはuserに関するもの、projectに関するもの等様々なstate毎に管理する必要がある可能性があるのでbaseのstateを作成すると便利
+class State<T> {
+  // event listenderを管理, 状態変化がある度この配列に格納された関数が実行される
+  protected listeners: Listener<T>[] = [];
+
+  addListener(listenerFn: Listener<T>) {
+    this.listeners.push(listenerFn);
+  }
+}
+
+// project state management
+// 状態管理は1箇所のみで管理したいのでsingleton
+class ProjectState extends State<Project> {
+  private projects: Project[] = [];
+  private static instance: ProjectState;
+
+  private constructor() {
+    super();
+  }
+
+  static getInstance() {
+    if (this.instance) {
+      return this.instance;
+    }
+    this.instance = new ProjectState();
+    return this.instance;
+  }
+
+  addProject(title: string, description: string, manday: number) {
+    // 新規のproject
+    const newProject = new Project(
+      Math.random().toString(),
+      title,
+      description,
+      manday,
+      ProjectStatus.Active
+    );
+    // 新規のprojectを格納
+    this.projects.push(newProject);
+    this.updateListeners();
+  }
+
+  moveProject(projectId: string, newStatus: ProjectStatus) {
+    const project = this.projects.find(prj => prj.id === projectId);
+    // statusが更新された場合のみ実行
+    if (project && project.status !== newStatus) {
+      project.status = newStatus;
+      this.updateListeners();
+    }
+  }
+
+  private updateListeners() {
+    for (const listenerFn of this.listeners) {
+      // projectsのcopyを引数に与えることで、listener関数によって元のprojectsが変更されないようにする
+      listenerFn(this.projects.slice());
     }
   }
 }
 
-// decorator factoryを実行し、中の関数部であるdecoratorが返ってくる
-// decorator関数を返すdecorator factoryは普通に上からした、decorator関数自体は下から上へ実行される
-@Logger('ログ出力中')
-@WithTemplate('<h1>Personオブジェクト</h1>', 'app')
-class Person {
-  name = 'Max';
-  constructor() {
-    console.log('Personオブジェクトを作成中...');
-  }
+// stateをglobalに使用できるように取得
+const projectState = ProjectState.getInstance();
+
+// validation
+// validationの対象となるobjectの型
+interface Validatable {
+  value: string | number;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  // 数字の最大、最長値check
+  min?: number;
+  max?: number;
 }
 
-const pers = new Person();
-console.log(pers);
-
-// instance propertyに対して使用される場合、2つの引数は、prototype、propertyName
-// static propertyに対して使用される場合、2つの引数は、constructor関数、propertyName
-function Log(target: any, propertyName: string | Symbol) {
-  console.log('Property デコレータ');
-  console.log(target, propertyName);
-}
-
-// accessor decorator, 引数はprototype or constructor, accessorName, descriptor(setter, getter等)
-function Log2(target: any, name: string, descriptor: PropertyDescriptor) {
-  console.log('Accessor デコレータ');
-  console.log(target);
-  console.log(name);
-  console.log(descriptor);
-}
-
-// method decorator, 引数はprototype or constructor, methodName, descriptor(value, writable等)
-function Log3(target: any, name: string | Symbol, descriptor: PropertyDescriptor) {
-  console.log('Method デコレータ');
-  console.log(target);
-  console.log(name);
-  console.log(descriptor);
-}
-
-// parameter decorator, 引数はprototype, methodName, positionNumber
-function Log4(target: any, name: string | Symbol, position: number) {
-  console.log('Parameter デコレータ');
-  console.log(target);
-  console.log(name);
-  console.log(position);
-}
-
-class Product {
-  @Log
-  title: string;
-  private _price: number;
-
-  @Log2
-  set price(val: number) {
-    if (this._price > 0) {
-      this._price = val;
-    } else {
-      throw new Error('不正な価格です - 0以下は設定できません');
-    }
-  }
-
-  constructor(t: string, p: number) {
-    this.title = t;
-    this._price = p;
-  }
-
-  @Log3
-  getPriceWithTax(@Log4 tax: number) {
-    return this._price * (1 + tax);
-  }
-}
-
-// decoratorはclassをinstanceした時に実行されるのではなく、定義時に実行
-const p1 = new Product('Book', 100);
-const p2 = new Product('Book2', 200);
-
-// mehtod decoratorで調整済みのdescriptorを返すことで、対象methodを修正できる
-function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
-  // 元のmethodをdescriptor.valueで取得し格納
-  const originalMethod = descriptor.value;
-  // adjはadjustment, ここで新たなdescriptorを作成している
-  const adjDescriptor: PropertyDescriptor = {
-    configurable: true,
-    enumerable: false,
-    get() {
-      // 元のmethodに正しいthisをbind
-      const boundFn = originalMethod.bind(this);
-      return boundFn;
-    }
-  };
-  return adjDescriptor;
-}
-
-class Printer {
-  message = 'クリックしました！';
-  @Autobind
-  showMessage() {
-    console.log(this.message);
-  }
-}
-
-const p = new Printer();
-
-const button = document.querySelector('button')!;
-// Autobind decoratorを使用しない時、p.showMessageのthisはbutton elementを指し示すこととなり、this.messageはundefinedになってしまうので、thisをAutobind descriptorで正しくbindする
-button.addEventListener('click', p.showMessage);
-
-interface ValidatorConfig {
-  [prop: string]: {
-    [validatableProp: string]: string[] // ['required', 'positive']
-  }
-}
-
-const registeredValidators: ValidatorConfig = {};
-
-function Required(target: any, propertyName: string) {
-  // target.constructor.nameでclassの名前にaccess、registeredValidators[target.constructor.name]でValidatorConfigのkeyとなるprop部をセット
-  registeredValidators[target.constructor.name] = {
-    // spread operatorで元からある設定に追加
-    ...registeredValidators[target.constructor.name],
-    // ValidatorConfigの[validatableProp: string]: string[]の部分
-    [propertyName]: [
-      ...(
-        // registeredValidators[target.constructor.name][propertyName]がnullなら[]で初期化
-        registeredValidators[target.constructor.name]?.[propertyName] ??
-        []
-      ),
-      'required'
-    ]
-  }
-}
-
-function PositiveNumber(target: any, propertyName: string) {
-  registeredValidators[target.constructor.name] = {
-    ...registeredValidators[target.constructor.name],
-    [propertyName]: [
-      ...(
-        registeredValidators[target.constructor.name]?.[propertyName] ??
-        []
-      ),
-      'positive'
-    ]
-  }
-}
-
-function validate(obj: any) {
-  // 右辺は、registeredValidators['Course']等になり、各validatorのconfigが取得できる
-  const objValidatorConfig = registeredValidators[obj.constructor.name];
-  if (!objValidatorConfig) {
-    return true;
-  }
-  // for loopでobjValidatorConfigが空だった時値が返されないのでdefaultでtrueとする
+function validate(validatableInput: Validatable) {
   let isValid = true;
-  // for inでobjectのkeyをloop
-  for (const prop in objValidatorConfig) {
-    console.log(prop);
-    // for ofでiterableをloop
-    for (const validator of objValidatorConfig[prop]) {
-      switch (validator) {
-        case 'required':
-          // logical operator
-          // exp1 && exp2: exp1がfalseならexp1, trueならexp2
-          // exp1 || exp2: exp1がtrueならexp1, falseならexp2
-          // falseならisValidつまりfalseのまま, tureならvalidation結果のobj[prop]をboolean化して格納
-          isValid = isValid && !!obj[prop];
-          break;
-        case 'positive':
-          isValid = isValid && obj[prop] > 0;
-          break;
-      }
-    }
+  // required
+  if (validatableInput.required) {
+    isValid = isValid && validatableInput.value.toString().trim().length !== 0;
+  }
+  // minLength
+  if (
+    validatableInput.minLength != null &&
+    typeof validatableInput.value === 'string'
+  ) {
+    isValid = isValid && validatableInput.value.length >= validatableInput.minLength;
+  }
+  // maxLength
+  if (
+    validatableInput.maxLength != null &&
+    typeof validatableInput.value === 'string'
+  ) {
+    isValid = isValid && validatableInput.value.length <= validatableInput.maxLength;
+  }
+  // min
+  if (
+    validatableInput.min != null &&
+    typeof validatableInput.value === 'number'
+  ) {
+    isValid = isValid && validatableInput.value >= validatableInput.min;
+  }
+  // max
+  if (
+    validatableInput.max != null &&
+    typeof validatableInput.value === 'number'
+  ) {
+    isValid = isValid && validatableInput.value <= validatableInput.max;
   }
   return isValid;
 }
 
-class Course {
-  @Required
-  @PositiveNumber
-  @PositiveNumber
-  title: string;
-  @PositiveNumber
-  price: number;
-  constructor(t: string, p: number) {
-    this.title = t;
-    this.price = p;
+// autobind decorator
+function autobind(
+  _: any,
+  _2: string,
+  descriptor: PropertyDescriptor
+) {
+  const originalMethod = descriptor.value;
+  const adjDescriptor: PropertyDescriptor = {
+    // propertyの変更可
+    configurable: true,
+    get() {
+      const boundFn = originalMethod.bind(this);
+      return boundFn;
+    }
+  }
+  return adjDescriptor;
+}
+
+// component class, instance化されないためにもabstract classに
+abstract class Component<T extends HTMLElement, U extends HTMLElement> {
+  templateElement: HTMLTemplateElement;
+  // hostElement, elementはclassによって異なるのでgenericsを使用する
+  hostElement: T;
+  element: U;
+
+  // constructorは基本的に要素への参照
+  constructor(
+    templateId: string,
+    hostElementId: string,
+    insertAtStart: boolean,
+    newElementId?: string,
+  ) {
+    this.templateElement = document.getElementById(templateId)! as HTMLTemplateElement;
+    this.hostElement = document.getElementById(hostElementId)! as T;
+
+    const importedNode = document.importNode(this.templateElement.content, true);
+    this.element = importedNode.firstElementChild as U;
+    // optional parameterなので存在をcheck
+    if (newElementId) {
+      this.element.id = newElementId;
+    }
+
+    this.attach(insertAtStart);
+  }
+
+  abstract configure(): void;
+  abstract renderContent(): void;
+
+  // 要素の追加
+  private attach(insertAtBeginning: boolean) {
+    this.hostElement.insertAdjacentElement(
+      insertAtBeginning ? 'afterbegin' : 'beforeend',
+      this.element
+    );
   }
 }
 
-console.log('registeredValidators', registeredValidators);
-
-const courseForm = document.querySelector('form')!;
-courseForm.addEventListener('submit', event => {
-  event.preventDefault();
-  const titleEl = document.getElementById('title') as HTMLInputElement;
-  const priceEl = document.getElementById('price') as HTMLInputElement;
-
-  const title = titleEl.value;
-  const price = +priceEl.value;
-
-  const createdCourse = new Course(title, price);
-  // validationが通らなければalert
-  if (!validate(createdCourse)) {
-    alert('正しく入力して下さい！');
-    return;
+// project item class, project listで表示する各projectの項目
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement>
+  implements Draggable {
+  private project: Project;
+  // getterで取得する項目に柔軟性をもたせる
+  get manday() {
+    if (this.project.manday < 20) {
+      return this.project.manday.toString() + '人日';
+    } else {
+      return (this.project.manday / 20).toString() + '人月';
+    }
   }
-  console.log(createdCourse);
-});
+
+  constructor(hostId: string, project: Project) {
+    super('single-project', hostId, false, project.id);
+    this.project = project;
+
+    this.configure();
+    this.renderContent();
+  }
+
+  @autobind
+  dragStartHandler(event: DragEvent) {
+    // drag eventに存在するdataTransferでdrag時にdataを保存、dropした時に利用可能なdataを渡す。setData(format, data)
+    event.dataTransfer!.setData('text/plain', this.project.id);
+    // drag中のcursorの形
+    event.dataTransfer!.effectAllowed = 'move';
+  }
+
+  dragEndHandler(_: DragEvent) {
+    console.log('Drag終了');
+  }
+
+  configure() {
+    // dragstartは標準のdom event
+    this.element.addEventListener('dragstart', this.dragStartHandler);
+    this.element.addEventListener('dragend', this.dragEndHandler);
+  }
+
+  renderContent() {
+    this.element.querySelector('h2')!.textContent = this.project.title;
+    this.element.querySelector('h3')!.textContent = this.manday;
+    this.element.querySelector('p')!.textContent = this.project.description.toString();
+  }
+}
+
+// projectのlistを表示
+class ProjectList extends Component<HTMLDivElement, HTMLElement>
+  implements DragTarget {
+  assignedProjects: Project[];
+
+  constructor(private type: 'active' | 'finished') {
+    super('project-list', 'app', false, `${type}-projects`);
+    this.assignedProjects = [];
+    this.configure();
+    this.renderContent();
+  }
+
+  // drag中にdrop可能な場所の時にその背景色を変える
+  @autobind
+  dragOverHandler(event: DragEvent) {
+    if (event.dataTransfer && event.dataTransfer.types[0] === 'text/plain') {
+      // drag eventをpreventDefaultすることでdrop eventが呼び出されるようになる
+      event.preventDefault();
+      const listEl = this.element.querySelector('ul')!;
+      listEl.classList.add('droppable');
+    }
+  }
+  // drop時に実行
+  @autobind
+  dropHandler(event: DragEvent) {
+    const prjId = event.dataTransfer!.getData('text/plain');
+    projectState.moveProject(prjId, this.type === 'active' ? ProjectStatus.Active : ProjectStatus.Finished);
+  }
+
+  // drag中にその要素を離れた時にvisualを変える
+  @autobind
+  dragLeaveHandler(_: DragEvent) {
+    const listEl = this.element.querySelector('ul')!;
+    listEl.classList.remove('droppable');
+  }
+
+  configure() {
+    this.element.addEventListener('dragover', this.dragOverHandler);
+    this.element.addEventListener('drop', this.dropHandler);
+    this.element.addEventListener('dragleave', this.dragLeaveHandler);
+
+    projectState.addListener((projects: Project[]) => {
+      const relevantProjects = projects.filter(prj => {
+        if (this.type === 'active') {
+          return prj.status === ProjectStatus.Active;
+        }
+        return prj.status === ProjectStatus.Finished;
+      });
+      this.assignedProjects = relevantProjects;
+      this.renderProjects();
+    });
+  }
+
+  // abstract methodはprivate不可
+  renderContent() {
+    const listId = `${this.type}-projects-list`;
+    this.element.querySelector('ul')!.id = listId;
+    this.element.querySelector('h2')!.textContent = this.type === 'active' ? '実行中プロジェクト' : '完了プロジェクト';
+  }
+
+  private renderProjects() {
+    const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
+    listEl.innerHTML = '';
+    for (const prjItem of this.assignedProjects) {
+      new ProjectItem(listEl.id, prjItem);
+    }
+  }
+}
+
+// formの表示と入力値の取得を行うclass
+class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
+  titleInputElement: HTMLInputElement;
+  descriptionInputElement: HTMLInputElement;
+  mandayInputElement: HTMLInputElement;
+
+  constructor() {
+    super('project-input', 'app', true, 'user-input');
+    // 各入力値への参照を取得
+    this.titleInputElement = this.element.querySelector('#title') as HTMLInputElement;
+    this.descriptionInputElement = this.element.querySelector('#description') as HTMLInputElement;
+    this.mandayInputElement = this.element.querySelector('#manday') as HTMLInputElement;
+
+    this.configure();
+  }
+
+  // event listenerの設定
+  configure() {
+    // callbackのsubmitHandler内でのthisはelementであるformを指し示しており、classでないことからそのままではpropertyにaccessできないことに注意。bind、autobind系のdecoaratorを使用する必要あり
+    this.element.addEventListener('submit', this.submitHandler);
+  }
+
+  renderContent() { }
+
+  // user inputのvalidationを行い、おｋなら取得
+  private gatherUserInput(): [string, string, number] | void {
+    const enteredTitle = this.titleInputElement.value;
+    const enteredDescription = this.descriptionInputElement.value;
+    const enteredManday = this.mandayInputElement.value;
+
+    const titleValidatable: Validatable = {
+      value: enteredTitle,
+      required: true,
+    };
+    const descriptionValidatable: Validatable = {
+      value: enteredDescription,
+      required: true,
+      minLength: 5,
+    };
+    const mandayValidatable: Validatable = {
+      value: +enteredManday,
+      required: true,
+      min: 1,
+      max: 1000,
+    };
+
+    if (
+      // validation, 1つでもvalidatieがfalseを返せばerror
+      !validate(titleValidatable) ||
+      !validate(descriptionValidatable) ||
+      !validate(mandayValidatable)
+    ) {
+      alert('入力値が正しくありません。再度お試しください。');
+      return;
+    } else {
+      return [enteredTitle, enteredDescription, +enteredManday];
+    }
+  }
+
+  // 入力値のclear
+  private clearInputs() {
+    this.titleInputElement.value = '';
+    this.descriptionInputElement.value = '';
+    this.mandayInputElement.value = '';
+  }
+
+  // event handler
+  @autobind
+  private submitHandler(event: Event) {
+    event.preventDefault();
+    const userInput = this.gatherUserInput();
+    // tupleかvoidかのcheck、tupleはjavascript上では只のarray
+    if (Array.isArray(userInput)) {
+      const [title, desc, manday] = userInput;
+      // 入力値を使ってやりたい操作
+      projectState.addProject(title, desc, manday);
+      this.clearInputs();
+    }
+  }
+}
+
+const prjInput = new ProjectInput();
+const activePrjList = new ProjectList('active');
+const finishedPrjList = new ProjectList('finished');
