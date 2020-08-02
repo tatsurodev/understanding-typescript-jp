@@ -62,5 +62,8 @@ export class ProjectState extends State<Project> {
   }
 }
 
+// このfileが複数のfileからimportされたとしても、最初にimportされた時に一度だけ実行される。importされる度に実行されるのではない
+// console.log('実行中・・・');
+
 // stateをglobalに使用できるように取得
 export const projectState = ProjectState.getInstance();
