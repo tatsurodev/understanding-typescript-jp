@@ -1,5 +1,7 @@
+export const something = '...';
+
 // component class, instance化されないためにもabstract classに
-export abstract class Component<T extends HTMLElement, U extends HTMLElement> {
+export default abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   templateElement: HTMLTemplateElement;
   // hostElement, elementはclassによって異なるのでgenericsを使用する
   hostElement: T;

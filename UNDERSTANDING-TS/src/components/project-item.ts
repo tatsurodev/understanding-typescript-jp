@@ -1,10 +1,10 @@
 import { Draggable } from '../models/drag-drop.js';
 import { Project } from '../models/project.js';
-import { Component } from './base-component.js';
+import Cmp from './base-component.js';
 import { autobind } from '../decorators/autobind.js'
 
 // project item class, project listで表示する各projectの項目
-export class ProjectItem extends Component<HTMLUListElement, HTMLLIElement>
+export class ProjectItem extends Cmp<HTMLUListElement, HTMLLIElement>
   implements Draggable {
   private project: Project;
   // getterで取得する項目に柔軟性をもたせる
