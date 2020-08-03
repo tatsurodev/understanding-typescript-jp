@@ -1,8 +1,8 @@
 // build toolを使用すれば拡張子無しでimportも可だが、不使用時は拡張子が必要
-import Cmp from './base-component.js';
-import * as Validation from '../util/validation.js';
-import { autobind as Autobind } from '../decorators/autobind.js';
-import { projectState } from '../state/project-state.js';
+import Cmp from './base-component';
+import * as Validation from '../util/validation';
+import { autobind as Autobind } from '../decorators/autobind';
+import { projectState } from '../state/project-state';
 
 // formの表示と入力値の取得を行うclass
 export class ProjectInput extends Cmp<HTMLDivElement, HTMLFormElement> {
