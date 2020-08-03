@@ -1,7 +1,7 @@
-import { Draggable } from '../models/drag-drop.js';
-import { Project } from '../models/project.js';
-import Cmp from './base-component.js';
-import { autobind } from '../decorators/autobind.js'
+import { Draggable } from '../models/drag-drop';
+import { Project } from '../models/project';
+import Cmp from './base-component';
+import { autobind } from '../decorators/autobind'
 
 // project item class, project listで表示する各projectの項目
 export class ProjectItem extends Cmp<HTMLUListElement, HTMLLIElement>
