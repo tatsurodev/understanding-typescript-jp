@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { plainToClass } from 'class-transformer';
+import { validate } from 'class-validator';
 import { Product } from './product.model';
 
 // const p1 = new Product('商品1', 100);
@@ -20,3 +21,14 @@ const loadedProducts = plainToClass(Product, products);
 for (const prod of loadedProducts) {
   console.log(prod.getInformation());
 }
+
+const newProd = new Product('', -100);
+// validateはvalidation errorをpromiseで返す
+validate(newProd).then(errors => {
+  if (errors.length > 0) {
+    console.log('バリデーションエラー！');
+    console.log(errors);
+  } else {
+    console.log(newProd.getInformation());
+  }
+});
