@@ -1,8 +1,22 @@
-import _ from 'lodash';
+import 'reflect-metadata';
+import { plainToClass } from 'class-transformer';
+import { Product } from './product.model';
 
-console.log(_.shuffle([1, 2, 3]));
+// const p1 = new Product('商品1', 100);
+// console.log(p1.getInformation());
 
-// アンビエント宣言でjavascriptから提供される関数、変数の型を宣言し、typescriptで使用できるようにする
-// declare var GLOBAL: string;
+// p1をinstance化するのに使用するdata(ここではtitle: '商品1', price: 100)をserverから取得する場合、Productのinstanceして扱うにはmapでloopさせるなどの処理が必要になり面倒
+const products = [
+  { title: '商品1', price: 100 },
+  { title: '商品2', price: 200 },
+];
+// const loadedProducts = products.map(prod => {
+//   return new Product(prod.title, prod.price);
+// });
 
-// console.log(GLOBAL);
+// class-transformerなら簡単にあるclassのinstanceを得られる
+const loadedProducts = plainToClass(Product, products);
+
+for (const prod of loadedProducts) {
+  console.log(prod.getInformation());
+}
