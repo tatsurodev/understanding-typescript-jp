@@ -1,34 +1,26 @@
-import 'reflect-metadata';
-import { plainToClass } from 'class-transformer';
-import { validate } from 'class-validator';
-import { Product } from './product.model';
+import './app.css';
 
-// const p1 = new Product('商品1', 100);
-// console.log(p1.getInformation());
+const form = document.querySelector('form')!;
 
-// p1をinstance化するのに使用するdata(ここではtitle: '商品1', price: 100)をserverから取得する場合、Productのinstanceして扱うにはmapでloopさせるなどの処理が必要になり面倒
-const products = [
-  { title: '商品1', price: 100 },
-  { title: '商品2', price: 200 },
-];
-// const loadedProducts = products.map(prod => {
-//   return new Product(prod.title, prod.price);
-// });
+declare var ol: any;
 
-// class-transformerなら簡単にあるclassのinstanceを得られる
-const loadedProducts = plainToClass(Product, products);
+function searchAddressHandler(event: Event) {
+  event.preventDefault();
+  // OpenLayersでlat, lngのdataで地図を表示する
+  const coordinates = { lat: 40.41, lng: -73.99 }; // Can't fetch coordinates from Google API, use dummy ones
+  document.getElementById('map')!.innerHTML = ''; // clear <p> from <div id="map">
+  new ol.Map({
+    target: 'map',
+    layers: [
+      new ol.layer.Tile({
+        source: new ol.source.OSM()
+      })
+    ],
+    view: new ol.View({
+      center: ol.proj.fromLonLat([coordinates.lng, coordinates.lat]),
+      zoom: 16
+    })
+  });
+};
 
-for (const prod of loadedProducts) {
-  console.log(prod.getInformation());
-}
-
-const newProd = new Product('', -100);
-// validateはvalidation errorをpromiseで返す
-validate(newProd).then(errors => {
-  if (errors.length > 0) {
-    console.log('バリデーションエラー！');
-    console.log(errors);
-  } else {
-    console.log(newProd.getInformation());
-  }
-});
+form.addEventListener('submit', searchAddressHandler);
