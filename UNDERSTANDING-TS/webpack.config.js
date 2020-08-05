@@ -1,5 +1,8 @@
 const path = require('path');
-const dotenv = require('dotenv-webpack');
+// .env fileから変数を読み込む
+const Dotenv = require('dotenv-webpack');
+// bundleしたfileを埋め込むhtmlを自動生成
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -7,9 +10,11 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: 'dist',
   },
   devtool: 'inline-source-map',
+  devServer: {
+    contentBase: path.join(__dirname, 'dist')
+  },
   module: {
     rules: [
       {
@@ -17,12 +22,22 @@ module.exports = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          'css-loader',
+        ]
+      }
     ],
   },
   resolve: {
     extensions: ['.ts', '.js'],
   },
   plugins: [
-    new dotenv('./.env'),
+    new Dotenv('./.env'),
+    new HtmlWebpackPlugin({
+      template: './src/index.html'
+    }),
   ],
 };

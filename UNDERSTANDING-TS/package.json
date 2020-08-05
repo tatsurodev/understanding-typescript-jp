@@ -5,7 +5,8 @@
     "main": "app.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "webpack-dev-server"
+        "start": "webpack-dev-server",
+        "build": "webpack"
     },
     "keywords": [
         "typescript",
@@ -14,7 +15,11 @@
     "author": "Maximilian Schwarzmüller",
     "license": "ISC",
     "devDependencies": {
+        "@types/googlemaps": "^3.39.11",
+        "css-loader": "^4.2.0",
         "dotenv-webpack": "^2.0.0",
+        "html-webpack-plugin": "^4.3.0",
+        "style-loader": "^1.2.1",
         "ts-loader": "^7.0.3",
         "typescript": "^3.8.3",
         "webpack": "^4.43.0",
