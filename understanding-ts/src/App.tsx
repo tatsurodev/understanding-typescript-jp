@@ -1,5 +1,6 @@
 import React from 'react';
 import TodoList from './components/TodoList';
+import NewTodod from './components/NewTodo';
 
 // function App() {
 //     return (
@@ -14,6 +15,7 @@ const App: React.FC = () => {
     ];
     return (
         <div className="App">
+            <NewTodod />
             <TodoList items={todos} />
         </div>
     );
