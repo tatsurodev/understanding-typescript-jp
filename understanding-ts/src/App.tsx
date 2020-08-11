@@ -14,7 +14,9 @@ const App: React.FC = () => {
     // useStateでstateとstateのsetterが返ってくる、戻り値をgenericsで指定
     const [todos, setTodos] = useState<Todo[]>([]);
     const todoAddHandler = (text: string) => {
-        setTodos([
+        // stateは非同期処理なので...todosで得られるものが最新のものとは場合によっては限らないので、関数で得られるprevStateを使用する
+        setTodos(prevTodos => [
+            ...prevTodos,
             { id: Math.random().toString(), text },
         ]);
     };
